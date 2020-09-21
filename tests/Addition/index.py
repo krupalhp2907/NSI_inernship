@@ -54,6 +54,7 @@ for i, test in enumerate(test_case):
     else:
         break
 
+
 if total_test_cases == passed_tests:
     print("All test case passed")
 else:
