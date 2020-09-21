@@ -13,6 +13,7 @@ const hangmanEl = document.getElementById("hangman");
 var hangman = new HangmanSvg(hangmanEl);
 
 
+// Use these words for your application
 const words = ['application', 'programming', 'interface', 'wizard', 'frizar'];
 var COUNT = 0;
 var total = words.length;

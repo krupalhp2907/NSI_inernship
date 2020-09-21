@@ -7,10 +7,33 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
+# Opions for less resource req
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')  # Required
 
-PATH = "C:\\Program Files (x86)\\chromedriver.exe"
-INPUT = path.join(os.getcwd(), 'public', 'index.html')
+# argument 1 location for webdriver
+# argument 2 location for webdriver
+try:
+    PATH = sys.argv[1]
+except:
+    PATH = "C:\\Program Files (x86)\\chromedriver.exe"
+
+try:
+    INPUT = sys.argv[2]
+except:
+    INPUT = path.join(os.getcwd(), 'Addition', 'public', 'index.html')
+
+if not path.exists(INPUT):
+    print("No such input file exists {}".format(INPUT))
+    exit(1)
+
+if not path.exists(INPUT):
+    print("Web driver location incorrect {}".format(INPUT))
+    exit(1)
+
 NUMBER1_TAG = "number-1"
 NUMBER2_TAG = "number-2"
 ADD_TAG = "add"
@@ -19,7 +42,7 @@ RESULT_TAG = "result"
 test_case = [[1, 3], [4, 3], [9, 10], [14, 19], [2423321, 3423432432]]
 
 # Chrome drive headless mode donot use gpu graphics gui buffer resource
-driver = webdriver.Chrome(PATH)
+driver = webdriver.Chrome(PATH, options=options)
 driver.get(INPUT)
 
 total_test_cases = test_case.__len__()
@@ -53,7 +76,6 @@ for i, test in enumerate(test_case):
         passed_tests += 1
     else:
         break
-
 
 if total_test_cases == passed_tests:
     print("All test case passed")

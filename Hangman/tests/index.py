@@ -15,16 +15,37 @@ from selenium.webdriver.support.ui import WebDriverWait
 import util
 
 # Setup Chrome Driver
-PATH = "C:\\Program Files (x86)\\chromedriver.exe"
-INPUT = path.join(os.getcwd(), 'public', 'Hangman', 'index.html')
+# argument 1 location for webdriver
+# argument 2 location for webdriver
+try:
+    PATH = sys.argv[1]
+except:
+    PATH = "C:\\Program Files (x86)\\chromedriver.exe"
+
+try:
+    INPUT = sys.argv[2]
+except:
+    INPUT = path.join(os.getcwd(), 'Hangmnan', 'public', 'index.html')
+
+if not path.exists(INPUT):
+    print("No such input file exists {}".format(INPUT))
+    exit(1)
+
+if not path.exists(INPUT):
+    print("Web driver location incorrect {}".format(INPUT))
+    exit(1)
+
+
 driver = webdriver.Chrome(PATH)
 driver.get(INPUT)
 
-# Selectors
+# Tags that will be used by tester
 BODY = 'body'
+# Classes that will be used by tester
 WRONG_LETTER = 'wrong-letter'
 LETTERS = 'letter'
 FIGURE_PART = 'figure-part'
+# IDs that will be used by tester
 PLAY_BTN = "play-button"
 GAME_STATUS = "game_status"
 
@@ -248,7 +269,6 @@ def checkOrtho(p1, p2, p3, p4):
 # returns what's the level of hangman
 def test_hangman_figure(hangman, level):
     x_par, y_par, non_par = hangman.x_par, hangman.y_par, hangman.non_par
-    print(len(x_par), len(y_par), len(non_par))
     # test for structure for hangman
     if not (2 <= len(x_par) <= 6) or not (2 <= len(y_par) <= 7) or not (0 <= len(non_par) <= 4):
         raise Exception(
@@ -375,6 +395,8 @@ playBtn = get_elements(By.ID, PLAY_BTN)[0]
 
 total_test_cases = len(tests)
 count = 0
+
+# Testing loop
 for index, test in enumerate(tests):
     test_input, test_output, hangman_level, worng_letters, wright_letters = test['test_input'], test[
         'test_output'], test['hangman_level'], test['worng_letters'], test['wright_letters']
