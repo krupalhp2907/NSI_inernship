@@ -28,6 +28,11 @@ FIGURE_PART = 'figure-part'
 PLAY_BTN = "play-button"
 GAME_STATUS = "game_status"
 
+# Errors Message
+TAGS_MISSING_MESSAGE = "{} has been missing. Check documentation for more details."
+TEST_CASE_FAILED_MESSAGE = "Test case for input failed. given input ==> '{}' <== | wrong letters ==> '{}' <== | correct letters ==> '{}' <==. Because ==> {}"
+
+
 # Make sure Test Must have win or loose output
 # ['application', 'programming', 'interface', 'wizard', 'frizar']
 tests = [
@@ -243,9 +248,9 @@ def checkOrtho(p1, p2, p3, p4):
 # returns what's the level of hangman
 def test_hangman_figure(hangman, level):
     x_par, y_par, non_par = hangman.x_par, hangman.y_par, hangman.non_par
-
+    print(len(x_par), len(y_par), len(non_par))
     # test for structure for hangman
-    if not ((2 <= len(x_par) <= 6) or (2 <= len(y_par) <= 7) or (0 <= len(non_par) <= 4)):
+    if not (2 <= len(x_par) <= 6) or not (2 <= len(y_par) <= 7) or not (0 <= len(non_par) <= 4):
         raise Exception(
             "These is problem is construction of Hangman. Hint :- Check Prallel Lines to x, y axis and non parallel lines")
 
@@ -311,7 +316,7 @@ def test_hangman_figure(hangman, level):
 
 def test_hangman(level):
 
-    figure_elements = driver.find_elements_by_class_name("figure-part")
+    figure_elements = get_elements(By.CLASS_NAME, FIGURE_PART)
     hangman = HangmanElements(figure_elements)
 
     # get head and lines
@@ -337,23 +342,55 @@ def test_hangman(level):
     return False
 
 
-for test in tests:
+# This function will control how scripts exits when code tested successfully
+# closing web driver
+# Clsoing all existing subprocess we created
+def exit_script():
+    driver.quit()
+    exit(0)
+
+
+def get_elements(by, name, err_message=""):
+    if err_message == "":
+        err_message = TAGS_MISSING_MESSAGE.format(name)
+    try:
+        temp = driver.find_elements(by, name)
+    except:
+        print("Tester Bug....")
+        exit_script()
+
+    # because classes are non unique
+    if by != By.CLASS_NAME and temp == []:
+        print(err_message)
+        exit_script()
+    return temp
+
+
+# Picks the driver
+body_element = get_elements(By.TAG_NAME, BODY)[0]
+
+# play btn for restarting game
+playBtn = get_elements(By.ID, PLAY_BTN)[0]
+
+
+total_test_cases = len(tests)
+count = 0
+for index, test in enumerate(tests):
+    test_input, test_output, hangman_level, worng_letters, wright_letters = test['test_input'], test[
+        'test_output'], test['hangman_level'], test['worng_letters'], test['wright_letters']
 
     # Give input to game
-    for i, char in enumerate(test["test_input"]):
-        driver.find_element(By.TAG_NAME, BODY).send_keys(char)
+    for i, char in enumerate(test_input):
+        body_element.send_keys(char)
 
-    # play btn for restarting game
-    playBtn = driver.find_element_by_id(PLAY_BTN)
     # html element where user typed correct letter
-    user_letters_element = driver.find_elements_by_class_name(LETTERS)
+    user_letters_element = get_elements(By.CLASS_NAME, LETTERS)
     # html element for user types wrong letters
-    user_typed_wrong_letter_element = driver.find_elements_by_class_name(
-        WRONG_LETTER)
+    user_typed_wrong_letter_element = get_elements(By.CLASS_NAME, WRONG_LETTER)
 
     # output by the one who takes assig it should a hidden tag id game_status for status in [playing, win, lose]
-    test_case_output = driver.find_element_by_id(
-        GAME_STATUS).get_attribute("value")
+    test_case_output = get_elements(By.ID, GAME_STATUS)
+    test_case_output = test_case_output[0].get_attribute("value")
 
     # actual wrong letters types by users
     user_typed_wrong_letter = []
@@ -368,25 +405,43 @@ for test in tests:
     # Actual user typed correct letter string
     user_letters = "".join(user_letters)
 
-    # print(sorted(user_typed_wrong_letter),
-    #       sorted(test["worng_letters"]), test_case_output, test["test_output"], test["wright_letters"], user_letters)
-
     # Tests performend
     # 1 ==> expected output vs output by student
     # 2 ==> the section for user wrong section
     # 3 ==> the setion for user wright section
-    if test_case_output == test["test_output"] and sorted(user_typed_wrong_letter) == sorted(test["worng_letters"]) and test["wright_letters"] == user_letters:
-        # 4 ==> Check is hangman forming correctly
-        if test_hangman(test["hangman_level"]):
-            print("Test case validated...")
+
+    if test_case_output == test_output:
+        if sorted(user_typed_wrong_letter) == sorted(worng_letters):
+            if wright_letters == user_letters:
+                try:
+                    if test_hangman(hangman_level):
+                        print("Test Case {} passed".format(index))
+                        count += 1
+                    else:
+                        print(TEST_CASE_FAILED_MESSAGE.format(
+                            test_input, worng_letters, wright_letters, "Hangman construction"))
+                        exit_script()
+                except:
+                    print(TEST_CASE_FAILED_MESSAGE.format(
+                        test_input, worng_letters, wright_letters, "Hangman construction"))
+                    exit_script()
+            else:
+                print(TEST_CASE_FAILED_MESSAGE.format(
+                    test_input, worng_letters, wright_letters, "user typed correct letters"))
         else:
-            print("There is problem in validation of hangman")
+            print(TEST_CASE_FAILED_MESSAGE.format(test_input,
+                                                  worng_letters, wright_letters, "user typed wrong letters"))
     else:
-        print("Test Case UnSuccesfull...")
+        print(TEST_CASE_FAILED_MESSAGE.format(test_input,
+                                              worng_letters, wright_letters, "game status or check user typed correct letters"))
 
     try:
         playBtn.click()
     except:
-        print("Game ended too Quickly. Test case failed")
+        print(TEST_CASE_FAILED_MESSAGE.format(test_input,
+                                              worng_letters, wright_letters, "There is some error in project. test case number " + str(index)))
 
-driver.quit()
+
+print("{}/{} test cases passed".format(count, total_test_cases))
+
+exit_script()
