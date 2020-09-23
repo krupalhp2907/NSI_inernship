@@ -5,12 +5,14 @@ import time
 from enum import Enum
 from os import path
 from queue import PriorityQueue
+import getpass
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 import util
 
@@ -20,12 +22,15 @@ import util
 try:
     PATH = sys.argv[1]
 except:
-    PATH = "C:\\Program Files (x86)\\chromedriver.exe"
+    PATH = "/home/{}/Downloads/geckodriver-v0.27.0-linux32/geckodriver".format(
+        getpass.getuser())
 
 try:
     INPUT = sys.argv[2]
 except:
-    INPUT = path.join(os.getcwd(), 'Hangmnan', 'public', 'index.html')
+    INPUT = "/home/pk/dev/NSI/projects/Hangman/public/index.html"
+
+print(INPUT)
 
 if not path.exists(INPUT):
     print("No such input file exists {}".format(INPUT))
@@ -35,9 +40,9 @@ if not path.exists(INPUT):
     print("Web driver location incorrect {}".format(INPUT))
     exit(1)
 
+driver = webdriver.Firefox()
+driver.get('file://' + INPUT)
 
-driver = webdriver.Chrome(PATH)
-driver.get(INPUT)
 
 # Tags that will be used by tester
 BODY = 'body'
