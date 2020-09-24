@@ -13,7 +13,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.chrome.options import Options
 
+# Opions for less resource req
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')  # Required
 
 try:
     INPUT = sys.argv[2]
@@ -25,7 +30,9 @@ if not path.exists(INPUT):
     print("No such input file exists {}".format(INPUT))
     exit(1)
 
-driver = webdriver.Firefox()
+print(path.join(os.getcwd(), '../', 'vendor', 'chromedriver'))
+driver = webdriver.Chrome(
+    "/home/pk/dev/NSI/projects/vendor/chromedriver", options=options)
 driver.get('file://' + INPUT)
 
 test_cases = [
@@ -54,8 +61,8 @@ TAGS_MISSING_MESSAGE = "{} has been missing. Check documentation for more detail
 NOT_CLICKABLE = "{} not clickable"
 
 # Colors
-GREEN = 'rgb(73, 188, 7)'
-RED = 'rgb(228, 70, 70)'
+GREEN = ['rgb(73, 188, 7)', 'rgba(73, 188, 7, 1)']
+RED = ['rgb(228, 70, 70)', 'rgba(228, 70, 70, 1)']
 
 
 def exit_script(msg="", code=0):
@@ -101,7 +108,7 @@ def check_clicked_on_bomb(bomb_locations):
     for bomb in bomb_locations:
         cell_identifier = CELL_LOCATION.format(bomb[0], bomb[1])
         cell_element = get_elements(By.ID, cell_identifier)[0]
-        if cell_element.value_of_css_property("background-color") != RED:
+        if cell_element.value_of_css_property("background-color") not in RED:
             return False
         # return False
     return True
@@ -109,7 +116,7 @@ def check_clicked_on_bomb(bomb_locations):
 
 def check_clicked_safe(cell_element, cell_number):
     if cell_element.text == str(cell_number):
-        if cell_element.value_of_css_property("background-color") == GREEN:
+        if cell_element.value_of_css_property("background-color") in GREEN:
             return True
         else:
             return False
@@ -117,40 +124,48 @@ def check_clicked_safe(cell_element, cell_number):
         return False
 
 
-total_test_cases = len(test_cases)
-count = 0
-for test in test_cases:
+def main():
+    total_test_cases = len(test_cases)
 
-    # It will exit script if something went wrong
-    test_grid()
+    count = 0
+    for test in test_cases:
 
-    bomb_locations, inputs, output, total_point = test[
-        "bomb_locations"], test["inputs"], test["output"], test["total_point"]
+        # It will exit script if something went wrong
+        test_grid()
 
-    bomb_locations_hash = gen_hash(bomb_locations)
+        bomb_locations, inputs, output, total_point = test[
+            "bomb_locations"], test["inputs"], test["output"], test["total_point"]
 
-    for i, inp in enumerate(inputs):
-        cell_identifier = CELL_LOCATION.format(inp[0], inp[1])
-        cell_element = get_elements(By.ID, cell_identifier)[0]
+        bomb_locations_hash = gen_hash(bomb_locations)
 
-        try:
-            cell_element.click()
-        except:
-            exit_script(NOT_CLICKABLE.format(cell_identifier))
+        for i, inp in enumerate(inputs):
+            cell_identifier = CELL_LOCATION.format(inp[0], inp[1])
+            cell_element = get_elements(By.ID, cell_identifier)[0]
 
-        if cell_identifier in bomb_locations_hash:
-            # check changes in application
-            out_ = check_clicked_on_bomb(bomb_locations)
+            try:
+                cell_element.click()
+            except:
+                exit_script(NOT_CLICKABLE.format(cell_identifier))
+
+            if cell_identifier in bomb_locations_hash:
+                # check changes in application
+                out_ = check_clicked_on_bomb(bomb_locations)
+            else:
+                # check changes in application
+                out_ = check_clicked_safe(cell_element, i)
+
+            if not out_:
+                print("Test case failed:- ", str(count))
+                break
         else:
-            # check changes in application
-            out_ = check_clicked_safe(cell_element, i)
+            print("Test case passed:- ", str(count))
+            count += 1
 
-        if not out_:
-            print("Test case failed:- ", str(count))
-            break
-    else:
-        print("Test case passed:- ", str(count))
-        count += 1
+    exit_script("{}/{} test cases passed".format(count, total_test_cases))
 
 
-exit_script("{}/{} test cases passed".format(count, total_test_cases))
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        exit_script("Server Error " + e)
