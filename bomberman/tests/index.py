@@ -30,7 +30,6 @@ if not path.exists(INPUT):
     print("No such input file exists {}".format(INPUT))
     exit(1)
 
-print(path.join(os.getcwd(), '../', 'vendor', 'chromedriver'))
 driver = webdriver.Chrome(
     "/home/pk/dev/NSI/projects/vendor/chromedriver", options=options)
 driver.get('file://' + INPUT)
@@ -39,8 +38,17 @@ test_cases = [
     {
         "bomb_locations": [[0, 1], [0, 2], [0, 3], [1, 3], [3, 5], [7, 7], [5, 3], [3, 6], [5, 1], [1, 3]],
         "inputs": [[4, 3], [6, 3], [4, 2], [3, 5]],
-        "output": "lose",
-        "total_point": 3
+        "output": 3
+    },
+    {
+        "bomb_locations": [[0, 1], [0, 2], [0, 3], [1, 3], [3, 5], [7, 7], [5, 3], [3, 6], [5, 1], [1, 3]],
+        "inputs": [[4, 3], [0, 3], [4, 2], [3, 5]],
+        "output": 1
+    },
+    {
+        "bomb_locations": [[0, 1], [0, 2], [0, 3], [1, 3], [3, 5], [7, 7], [5, 3], [3, 6], [5, 1], [1, 3]],
+        "inputs": [[4, 3], [4, 2], [3, 1], [0, 0], [4, 6], [0, 1]],
+        "output": 5
     }
 ]
 
@@ -53,7 +61,7 @@ CELL_LOCATION = "{}_{}"
 
 # IDS
 GAME_STATUS = "game-status"  # should be in ['playing', 'win', 'lose']
-PLAY_BTN = "play-again"
+PLAY_BTN = "play-button"
 
 
 # Erros messages
@@ -110,7 +118,6 @@ def check_clicked_on_bomb(bomb_locations):
         cell_element = get_elements(By.ID, cell_identifier)[0]
         if cell_element.value_of_css_property("background-color") not in RED:
             return False
-        # return False
     return True
 
 
@@ -124,20 +131,24 @@ def check_clicked_safe(cell_element, cell_number):
         return False
 
 
+# Global
+
+
 def main():
     total_test_cases = len(test_cases)
 
     count = 0
-    for test in test_cases:
+    for index, test in enumerate(test_cases):
 
         # It will exit script if something went wrong
         test_grid()
 
-        bomb_locations, inputs, output, total_point = test[
-            "bomb_locations"], test["inputs"], test["output"], test["total_point"]
+        bomb_locations, inputs, output = test[
+            "bomb_locations"], test["inputs"], test['output']
 
         bomb_locations_hash = gen_hash(bomb_locations)
 
+        count_points, flag = 0, False
         for i, inp in enumerate(inputs):
             cell_identifier = CELL_LOCATION.format(inp[0], inp[1])
             cell_element = get_elements(By.ID, cell_identifier)[0]
@@ -150,16 +161,31 @@ def main():
             if cell_identifier in bomb_locations_hash:
                 # check changes in application
                 out_ = check_clicked_on_bomb(bomb_locations)
+                if not out_:
+                    print("Test case failed", index)
+                    flag = True
+                break
             else:
                 # check changes in application
+                count_points += 1
                 out_ = check_clicked_safe(cell_element, i)
+                if not out_:
+                    print("Test case failed", index)
+                    flag = True
 
-            if not out_:
-                print("Test case failed:- ", str(count))
-                break
-        else:
-            print("Test case passed:- ", str(count))
-            count += 1
+        if not flag:
+            if output == count_points:
+                print("Test case passed ", index)
+                count += 1
+            else:
+                print("Test case failed ", index)
+
+        try:
+            play_button_element = get_elements(By.ID, PLAY_BTN)[0]
+            play_button_element.click()
+        except:
+            print(NOT_CLICKABLE.format(PLAY_BTN))
+            break
 
     exit_script("{}/{} test cases passed".format(count, total_test_cases))
 
@@ -168,4 +194,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        exit_script("Server Error " + e)
+        exit_script("Server Error")
