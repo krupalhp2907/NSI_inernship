@@ -20,3 +20,4 @@ The tests are performed using python using chrome web driver and selenium.
 
 - [Addition Project Problem Statement](https://docs.google.com/document/d/1j5tUsVPudRigG8OrzYdnrCJW04VQZCxhdbM_I2KXjpc/edit?usp=sharing) - Problem statement doc for Addition project
 - [Hangman Project Problem Statement](https://docs.google.com/document/d/1j5tUsVPudRigG8OrzYdnrCJW04VQZCxhdbM_I2KXjpc/edit?usp=sharinge) - Problem statement doc for Hangman project
+- [Bomberman Project Problem Statement](https://docs.google.com/document/d/1ecxVRXwUltQNfifvyeSy7Dh_M_VIbKHdoafZGr6oYt0/edit?usp=sharing) - Problem statement doc for Hangman project
