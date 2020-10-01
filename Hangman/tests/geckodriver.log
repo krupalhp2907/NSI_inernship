@@ -31,3 +31,22 @@ console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Err
 1600840020857	Marionette	INFO	Listening on port 46593
 1600840020924	Marionette	WARN	TLS certificate errors will be ignored for this session
 1600840025309	Marionette	INFO	Stopped listening on port 46593
+1601203760561	geckodriver	INFO	Listening on 127.0.0.1:51883
+1601203761537	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileuJzaqN"
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1601203778538	Marionette	INFO	Listening on port 33985
+1601203778642	Marionette	WARN	TLS certificate errors will be ignored for this session
+1601203784668	Marionette	INFO	Stopped listening on port 33985
+1601203792718	geckodriver	INFO	Listening on 127.0.0.1:60845
+1601203792728	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileQSp3DQ"
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1601203796917	Marionette	INFO	Listening on port 36011
+1601203796977	Marionette	WARN	TLS certificate errors will be ignored for this session
+1601203802867	Marionette	INFO	Stopped listening on port 36011
+1601204035179	geckodriver	INFO	Listening on 127.0.0.1:41565
+1601204035187	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileGEfblO"
+console.error: SearchCache: "_readCacheFile: Error reading cache file:" (new Error("", "(unknown module)"))
+1601204039877	Marionette	INFO	Listening on port 45761
+1601204039934	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: file:///home/pk/dev/NSI/projects/Hangman/public/js/Hangman/HangmanSvg.js, line 6: TypeError: svg is null
+1601204041494	Marionette	INFO	Stopped listening on port 45761

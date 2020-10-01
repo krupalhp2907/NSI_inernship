@@ -17,13 +17,13 @@ from selenium.webdriver.chrome.options import Options
 
 # Opions for less resource req
 options = Options()
-#options.add_argument('--headless')
-#options.add_argument('--disable-gpu')  # Required
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')  # Required
 
 try:
     INPUT = sys.argv[2]
 except:
-    INPUT = "/home/pk/dev/NSI/projects/bomberman/public/index.html"
+    INPUT = "/home/pk/dev/NSI/projects/bomberman2/public/index.html"
 
 
 if not path.exists(INPUT):
@@ -47,8 +47,8 @@ test_cases = [
     },
     {
         "bomb_locations": [[0, 1], [0, 2], [0, 3], [1, 3], [3, 5], [7, 7], [5, 3], [3, 6], [5, 1], [1, 3]],
-        "inputs": [[4, 3], [4, 2], [3, 1], [0, 0], [4, 6], [0, 1]],
-        "output": 5
+        "inputs": [[4, 3], [4, 2], [3, 1], [0, 0], [4, 6], [1, 0], [2, 0], [3, 0], [3, 1], [3, 2], [3, 2], [4, 0], [0, 1]],
+        "output": 12
     }
 ]
 
@@ -59,7 +59,6 @@ test_cases = [
 CELL_LOCATION = "{}_{}"
 
 # IDS
-GAME_STATUS = "game-status"  # should be in ['playing', 'win', 'lose']
 PLAY_BTN = "play-button"
 
 
@@ -89,6 +88,17 @@ def get_elements(by, name, err_message=""):
         print(err_message)
         exit_script()
     return temp
+
+
+def get_surrounding(bombIndices, index, colCount, rowCount):
+    bomb, x, y = 0, index[0], index[1]
+    i, j, m, n = max(0, x - 1), max(0, y - 1), min(rowCount -
+                                                   1, x + 1), min(colCount - 1, y + 1)
+    for a in range(i, m + 1):
+        for b in range(j, n + 1):
+            if [a, b] in bombIndices:
+                bomb += 1
+    return bomb
 
 
 def test_grid():
@@ -148,7 +158,7 @@ def main():
         bomb_locations_hash = gen_hash(bomb_locations)
 
         count_points, flag = 0, False
-        for i, inp in enumerate(inputs):
+        for _, inp in enumerate(inputs):
             cell_identifier = CELL_LOCATION.format(inp[0], inp[1])
             cell_element = get_elements(By.ID, cell_identifier)[0]
 
@@ -167,7 +177,8 @@ def main():
             else:
                 # check changes in application
                 count_points += 1
-                out_ = check_clicked_safe(cell_element, i)
+                out_ = check_clicked_safe(cell_element, get_surrounding(
+                    bomb_locations, [inp[0], inp[1]], 9, 9))
                 if not out_:
                     print("Test case failed", index)
                     flag = True

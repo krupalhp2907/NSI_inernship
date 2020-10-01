@@ -10,38 +10,14 @@ function generateBombIndicies(pCount, pMin, pMax) {
     return arr;
 }
 function findNeighbourBombs(bombIndices, index, colCount, rowCount) {
-    let bombs = 0;
-    // positions
-    // |1|2|3|
-    // |4|x|5|
-    // |6|7|8|
-    if (index % colCount !== 1 && bombIndices.includes(index - colCount - 1)) {
-        bombs++;
-    }
-    if (index > colCount && bombIndices.includes(index - colCount)) {
-        bombs++;
-    }
-    if (index % colCount !== 0 && bombIndices.includes(index - colCount + 1)) {
-        bombs++;
-    }
-
-    if (index % colCount !== 1 && bombIndices.includes(index - 1)) {
-        bombs++;
-    }
-    if (index % colCount !== 0 && bombIndices.includes(index + 1)) {
-        bombs++;
-    }
-    if (index % colCount !== 1 && bombIndices.includes(index + colCount - 1)) {
-        bombs++;
-    }
-    if (
-        index <= colCount * (rowCount - 1) &&
-        bombIndices.includes(index + colCount)
-    ) {
-        bombs++;
-    }
-    if (index % colCount !== 0 && bombIndices.includes(index + colCount + 1)) {
-        bombs++;
+    let bombs = 0, x = index[1], y = index[0];
+    let i = Math.max(0, x - 1), j = Math.max(0, y - 1), m = Math.min(rowCount - 1, x + 1), n = Math.min(colCount - 1, y + 1);
+    for (let a = i; a <= m; a++) {
+        for (let b = j; b <= n; b++) {
+            if (bombIndices.includes(a * rowCount + b)) {
+                bombs++;
+            }
+        }
     }
     return bombs;
 }
@@ -86,12 +62,12 @@ function render() {
                         safeCol.classList.add("safe");
                         const neighbouringBombs = findNeighbourBombs(
                             bombIndices,
-                            i + j * rowCount,
+                            [i, j],
                             colCount,
                             rowCount
                         );
                         points++;
-                        safeCol.innerHTML = points - 1;
+                        safeCol.innerHTML = neighbouringBombs;
                         pointer.innerHTML = points;
                     }
                 }
